@@ -4,6 +4,8 @@ const { startInteractive, currentDownloadPath } = require('./utils/input');
 const { showBanner, showStatusFooter } = require('./utils/helpers');
 const { PLATFORM_CONFIG } = require('./utils/config');
 
+
+// Explanation 
 program
   .name('prnvapp')
   .description('Social Media Downloader CLI')

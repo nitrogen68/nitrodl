@@ -28,6 +28,10 @@ async function downloadTikTok(url, basePath = 'resultdownload_preniv') {
         throw new Error(errorMsg);
       }
     } catch (defaultError) {
+      if (!getApi.tiktokV1) {
+        const errorMsg = defaultError.message || 'Default API failed and no v1 fallback configured';
+        throw new Error(errorMsg);
+      }
       spinner.text = ' Fetching TikTok video data (v1 fallback)...';
       const response = await axios.get(`${getApi.tiktokV1}${encodeURIComponent(url)}`, {
         timeout: 30000,

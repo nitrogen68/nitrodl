@@ -3,7 +3,7 @@ const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
 const { getApi } = require('./api');
-const { downloadFile } = require('../utils/download');
+const { downloadFile, sanitizeFragment, sanitizeExtension } = require('../utils/download');
 
 async function downloadPinterest(url, basePath = 'resultdownload_preniv') {
   const spinner = ora(' Fetching Pinterest media data...').start();
@@ -40,7 +40,7 @@ async function downloadPinterest(url, basePath = 'resultdownload_preniv') {
     if (data.data.downloads.length === 1) {
       const media = data.data.downloads[0];
       const downloadSpinner = ora(' Downloading media...').start();
-      const extension = media.format.toLowerCase();
+      const extension = sanitizeExtension(media.format);
       const filename = `pinterest_${Date.now()}.${extension}`;
       await downloadFile(media.url, filename, downloadSpinner, basePath);
     } else {
@@ -76,15 +76,15 @@ async function downloadPinterest(url, basePath = 'resultdownload_preniv') {
         for (let i = 0; i < data.data.downloads.length; i++) {
           const media = data.data.downloads[i];
           const downloadSpinner = ora(` Downloading ${media.quality} (${i + 1}/${data.data.downloads.length})...`).start();
-          const extension = media.format.toLowerCase();
-          const safeQuality = media.quality.replace(/[^a-zA-Z0-9]/g, '_');
+          const extension = sanitizeExtension(media.format);
+          const safeQuality = sanitizeFragment(media.quality, 'default');
           const filename = `pinterest_${safeQuality}_${Date.now()}.${extension}`;
           await downloadFile(media.url, filename, downloadSpinner, basePath);
         }
       } else {
         const downloadSpinner = ora(' Downloading selected media...').start();
-        const extension = selectedDownload.format.toLowerCase();
-        const safeQuality = selectedDownload.quality.replace(/[^a-zA-Z0-9]/g, '_');
+        const extension = sanitizeExtension(selectedDownload.format);
+        const safeQuality = sanitizeFragment(selectedDownload.quality, 'default');
         const filename = `pinterest_${safeQuality}_${Date.now()}.${extension}`;
         await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath);
       }

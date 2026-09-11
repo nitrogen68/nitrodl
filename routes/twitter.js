@@ -3,7 +3,7 @@ const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
 const { getApi } = require('./api');
-const { downloadFile } = require('../utils/download');
+const { downloadFile, sanitizeFragment } = require('../utils/download');
 
 async function downloadTwitter(url, basePath = 'resultdownload_preniv') {
   const spinner = ora(' Fetching Twitter video data...').start();
@@ -37,7 +37,8 @@ async function downloadTwitter(url, basePath = 'resultdownload_preniv') {
 
     if (data.media.length === 1) {
       const downloadSpinner = ora(' Downloading video...').start();
-      const filename = `twitter_video_${data.media[0].quality}p_${Date.now()}.mp4`;
+      const safeQuality = sanitizeFragment(data.media[0].quality, 'auto');
+      const filename = `twitter_video_${safeQuality}_${Date.now()}.mp4`;
       await downloadFile(data.media[0].url, filename, downloadSpinner, basePath);
     } else {
       const downloadChoices = data.media.map((item, index) => ({
@@ -65,7 +66,8 @@ async function downloadTwitter(url, basePath = 'resultdownload_preniv') {
       }
       
       const downloadSpinner = ora(` Downloading ${selectedDownload.quality}p video...`).start();
-      const filename = `twitter_video_${selectedDownload.quality}p_${Date.now()}.mp4`;
+      const safeQuality = sanitizeFragment(selectedDownload.quality, 'auto');
+      const filename = `twitter_video_${safeQuality}_${Date.now()}.mp4`;
       await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath);
     }
   } catch (error) {

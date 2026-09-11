@@ -3,7 +3,7 @@ const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
 const { getApi } = require('./api');
-const { downloadFile } = require('../utils/download');
+const { downloadFile, sanitizeFragment, sanitizeExtension } = require('../utils/download');
 
 async function downloadCapcut(url, basePath = 'resultdownload_preniv') {
   const spinner = ora(' Fetching CapCut video data...').start();
@@ -40,7 +40,7 @@ async function downloadCapcut(url, basePath = 'resultdownload_preniv') {
     if (data.data.medias.length === 1) {
       const media = data.data.medias[0];
       const downloadSpinner = ora(` Downloading ${media.quality}...`).start();
-      const filename = `capcut_${data.data.unique_id}_${Date.now()}.${media.extension}`;
+      const filename = `capcut_${sanitizeFragment(data.data.unique_id)}_${Date.now()}.${sanitizeExtension(media.extension)}`;
       await downloadFile(media.url, filename, downloadSpinner, basePath);
     } else {
       const downloadChoices = data.data.medias.map((media, index) => ({
@@ -68,7 +68,7 @@ async function downloadCapcut(url, basePath = 'resultdownload_preniv') {
       }
 
       const downloadSpinner = ora(` Downloading ${selectedDownload.quality}...`).start();
-      const filename = `capcut_${data.data.unique_id}_${selectedDownload.quality.replace(/\s+/g, '_')}_${Date.now()}.${selectedDownload.extension}`;
+      const filename = `capcut_${sanitizeFragment(data.data.unique_id)}_${sanitizeFragment(selectedDownload.quality, 'default')}_${Date.now()}.${sanitizeExtension(selectedDownload.extension)}`;
       await downloadFile(selectedDownload.url, filename, downloadSpinner, basePath);
     }
   } catch (error) {
